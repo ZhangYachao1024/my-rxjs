@@ -1,0 +1,11 @@
+{
+    "apps":[
+       {
+          "root":"src",
+          "prefix":"just"
+       }
+    ],
+    "defaults":{
+       "styleExt":"css"
+    }
+ }
