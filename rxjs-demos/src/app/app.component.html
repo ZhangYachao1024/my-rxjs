@@ -1,4 +1,7 @@
-<p>
-    这是root页面
-</p>
-<hr>
+<div class="wrapper">
+    <ul #contentBox>
+        <ng-container *ngFor="let item of list">
+            <li>{{item.text}}</li>
+        </ng-container>
+    </ul>
+</div>
