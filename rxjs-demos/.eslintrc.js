@@ -13,7 +13,5 @@ module.exports = {
     plugins: [
         '@typescript-eslint',
     ],
-    rules: {
-        "indent": ["warn", 4]
-    },
+    rules: {},
 };

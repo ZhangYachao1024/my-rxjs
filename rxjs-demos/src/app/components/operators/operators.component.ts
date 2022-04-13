@@ -1,17 +1,54 @@
-import { Injectable } from '@angular/core';
-import { combineLatest, concat, forkJoin, from, fromEvent, interval, merge, of, race, range, throwError, timer, zip } from 'rxjs';
-import { combineAll, concatAll, map, mapTo, mergeAll, mergeMap, pairwise, take, tap, withLatestFrom } from 'rxjs/operators';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import {
+    combineLatest,
+    concat,
+    forkJoin,
+    from,
+    fromEvent,
+    interval,
+    merge,
+    of,
+    race,
+    range,
+    Subject,
+    throwError,
+    timer,
+    zip,
+} from 'rxjs';
+import {
+    combineAll,
+    concatAll,
+    map,
+    mapTo,
+    mergeAll,
+    mergeMap,
+    pairwise,
+    take,
+    takeUntil,
+    withLatestFrom,
+} from 'rxjs/operators';
 
-@Injectable({
-    providedIn: 'root',
+@Component({
+    selector: 'app-operators',
+    templateUrl: './operators.component.html',
+    styleUrls: ['./operators.component.scss'],
 })
-export class RxjsOperatorsService {
-
+export class OperatorsComponent implements OnInit, OnDestroy {
     // 领悟到的道理：
     // 1.操作符可以自动将Promise转换为Observable。
     // 2.如果操作符的入参是数组，则发出的值也是数组。
 
-    constructor() { this.cancatMapFn(); }
+    private __unsubscribe$ = new Subject();
+
+    constructor() {}
+
+    ngOnInit(): void {
+        // this.combineLatestFn();
+    }
+
+    ngOnDestroy(): void {
+        this.__unsubscribe$.next();
+    }
 
     /********************************** 创建  ************************************/
 
@@ -21,7 +58,9 @@ export class RxjsOperatorsService {
     ofFn() {
         const source1 = of(1, 2, 3); // 按顺序依次发出1,2,3
         const source2 = of(); // 没有发出值，则不执行subscribe
-        source2.subscribe(val => { console.log(val); });
+        source2.subscribe((val) => {
+            console.log(val);
+        });
     }
 
     /**
@@ -29,8 +68,10 @@ export class RxjsOperatorsService {
      */
     fromFn() {
         const source1 = from([1, 2, 3]); // 和of(1, 2, 3)相同
-        const source2 = from(new Promise(resolve => resolve(4))); // 4
-        source2.subscribe(val => { console.log(val); });
+        const source2 = from(new Promise((resolve) => resolve(4))); // 4
+        source2.subscribe((val) => {
+            console.log(val);
+        });
     }
 
     /**
@@ -38,11 +79,15 @@ export class RxjsOperatorsService {
      */
     fromEventFn() {
         const source1 = fromEvent(document, 'click');
-        source1.pipe(
-            map((event) => {
-                return `Event timeStamp: ${event.timeStamp}`;
-            })
-        ).subscribe(val => { console.log(val); });
+        source1
+            .pipe(
+                map((event) => {
+                    return `Event timeStamp: ${event.timeStamp}`;
+                })
+            )
+            .subscribe((val) => {
+                console.log(val);
+            });
     }
 
     /**
@@ -52,7 +97,9 @@ export class RxjsOperatorsService {
     intervalFn() {
         const source1 = interval(); // 以极快间隔持续发出数字
         const source2 = interval(3000); // 与timer(3000, 3000)差不多
-        source1.subscribe(val => { console.log(`time: ${Date()} value: ${val}`); });
+        source1.subscribe((val) => {
+            console.log(`time: ${Date()} value: ${val}`);
+        });
     }
 
     /**
@@ -62,7 +109,9 @@ export class RxjsOperatorsService {
         const source1 = timer(); // 直接发出0，然后结束
         const source2 = timer(3000); // 3秒后发出0， 然后结束，因为没有第二个参数
         const source3 = timer(3000, 1000); // 等待3秒，间隔1秒（只有前4个数是间隔1秒）
-        source1.subscribe(val => { console.log(`time: ${Date()} value: ${val}`); });
+        source1.subscribe((val) => {
+            console.log(`time: ${Date()} value: ${val}`);
+        });
     }
 
     /**
@@ -71,7 +120,9 @@ export class RxjsOperatorsService {
     rangeFn() {
         const source1 = range(); // 不发出值
         const source2 = range(1, 10); // 极快的速度发出1-10
-        source2.subscribe(val => { console.log(`time: ${Date()} value: ${val}`); });
+        source2.subscribe((val) => {
+            console.log(`time: ${Date()} value: ${val}`);
+        });
     }
 
     /**
@@ -80,7 +131,9 @@ export class RxjsOperatorsService {
     throwErrorFn() {
         const source1 = throwError('这是一个错误'); // 必须有参数
         source1.subscribe({
-            error: val => { console.log(`value: ${val}`); }
+            error: (val) => {
+                console.log(`value: ${val}`);
+            },
         });
     }
 
@@ -97,7 +150,9 @@ export class RxjsOperatorsService {
         const secondTimer = timer(500, 1000);
         const combinedTimers1 = combineLatest([]); // 传空数组或不传参，不发出值
         const combinedTimers2 = combineLatest([firstTimer, secondTimer]);
-        combinedTimers2.subscribe(value => console.log(value));
+        combinedTimers2
+            .pipe(takeUntil(this.__unsubscribe$))
+            .subscribe((value) => console.log(value));
     }
 
     /**
@@ -106,10 +161,12 @@ export class RxjsOperatorsService {
      * 2.注意，必须源observable【完成】并发出值，才有效
      */
     combineAllFn() {
-        from([1, 2]).pipe(
-            map(val => of(val + '-new')),
-            combineAll(),
-        ).subscribe(value => console.log(value)); // ['1-new', '2-new']
+        from([1, 2])
+            .pipe(
+                map((val) => of(val + '-new')),
+                combineAll()
+            )
+            .subscribe((value) => console.log(value)); // ['1-new', '2-new']
     }
 
     /**
@@ -121,7 +178,7 @@ export class RxjsOperatorsService {
         forkJoin([
             interval(1000).pipe(take(2)),
             interval(1500).pipe(take(1)),
-        ]).subscribe(value => console.log(value));
+        ]).subscribe((value) => console.log(value));
     }
 
     /**
@@ -134,7 +191,7 @@ export class RxjsOperatorsService {
         let name$ = of('Foo', 'Bar', 'Beer');
         let isDev$ = of(true, true, false);
 
-        zip(age$, name$, isDev$).subscribe(x => console.log(x))
+        zip(age$, name$, isDev$).subscribe((x) => console.log(x));
     }
 
     /**
@@ -150,13 +207,9 @@ export class RxjsOperatorsService {
         const third = interval(3000).pipe(take(2), mapTo('third'));
 
         // 静态方法
-        const source1 = merge(
-            second,
-            first,
-            third,
-        );
+        const source1 = merge(second, first, third);
         // 会打印6次
-        source1.subscribe(val => console.log(val));
+        source1.subscribe((val) => console.log(val));
     }
 
     /**
@@ -169,7 +222,7 @@ export class RxjsOperatorsService {
         const clicks = fromEvent(document, 'click');
         const higherOrder = clicks.pipe(map(() => interval(1000)));
         const firstOrder = higherOrder.pipe(mergeAll());
-        firstOrder.subscribe(x => console.log(x));
+        firstOrder.subscribe((x) => console.log(x));
     }
 
     /**
@@ -178,7 +231,7 @@ export class RxjsOperatorsService {
     mergeMapFn() {
         const clicks = fromEvent(document, 'click');
         const firstOrder = clicks.pipe(mergeMap(() => interval(1000)));
-        firstOrder.subscribe(x => console.log(x));
+        firstOrder.subscribe((x) => console.log(x));
     }
 
     /**
@@ -190,9 +243,9 @@ export class RxjsOperatorsService {
      */
     concatFn() {
         const timer = interval(1000).pipe(take(4));
-        const sequence = range(1, 10).pipe(map(val => val + 's'));
+        const sequence = range(1, 10).pipe(map((val) => val + 's'));
         const result = concat(timer, sequence);
-        result.subscribe(x => console.log(x));
+        result.subscribe((x) => console.log(x));
     }
 
     /**
@@ -203,10 +256,10 @@ export class RxjsOperatorsService {
     cancatAllFn() {
         const clicks = fromEvent(document, 'click');
         const higherOrder = clicks.pipe(
-            map(ev => interval(1000).pipe(take(4))),
+            map((ev) => interval(1000).pipe(take(4)))
         );
         const firstOrder = higherOrder.pipe(concatAll());
-        firstOrder.subscribe(x => console.log(x));
+        firstOrder.subscribe((x) => console.log(x));
     }
 
     /**
@@ -214,8 +267,10 @@ export class RxjsOperatorsService {
      */
     cancatMapFn() {
         const clicks = fromEvent(document, 'click');
-        const firstOrder = clicks.pipe(mergeMap(() => interval(1000).pipe(take(4))));
-        firstOrder.subscribe(x => console.log(x));
+        const firstOrder = clicks.pipe(
+            mergeMap(() => interval(1000).pipe(take(4)))
+        );
+        firstOrder.subscribe((x) => console.log(x));
     }
 
     /**
@@ -228,10 +283,7 @@ export class RxjsOperatorsService {
         const obs2 = interval(3000).pipe(mapTo('medium one'));
         const obs3 = interval(5000).pipe(mapTo('slow one'));
 
-        race(obs3, obs1, obs2)
-            .subscribe(
-                winner => console.log(winner)
-            );
+        race(obs3, obs1, obs2).subscribe((winner) => console.log(winner));
     }
 
     /**
@@ -248,9 +300,9 @@ export class RxjsOperatorsService {
                 const x1 = pair[1].clientX;
                 const y1 = pair[1].clientY;
                 return Math.sqrt(Math.pow(x0 - x1, 2) + Math.pow(y0 - y1, 2));
-            }),
+            })
         );
-        distance.subscribe(x => console.log(x));
+        distance.subscribe((x) => console.log(x));
     }
 
     /**
@@ -261,7 +313,7 @@ export class RxjsOperatorsService {
         const clicks = fromEvent(document, 'click');
         const timer = interval(1000);
         const result = clicks.pipe(withLatestFrom(timer));
-        result.subscribe(x => console.log(x));
+        result.subscribe((x) => console.log(x));
     }
 
     /************************ 过滤操作符 ************************/
@@ -289,12 +341,4 @@ export class RxjsOperatorsService {
     // bufferTime 收集发出的值，直到经过了提供的时间才将其作为数组发出。
     // bufferToggle 设置缓冲区，手机开启时间内发出的值，将其作为数组发出。
     // bufferWhen 收集值，直到关闭选择器发出值后，才将缓冲的值作为数组发出。
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
 }

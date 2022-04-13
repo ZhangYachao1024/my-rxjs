@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { RxjsOperatorsService, RxjsSubjectsService } from './services';
 
 @Component({
     selector: 'app-root',
@@ -7,14 +6,7 @@ import { RxjsOperatorsService, RxjsSubjectsService } from './services';
     styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-    constructor(
-        private __rxjsSubjectsService: RxjsSubjectsService,
-        private __rxjsOperatorsService: RxjsOperatorsService,
-    ) {}
+    constructor() {}
 
-    ngOnInit(): void {
-
-    }
-
-
+    ngOnInit(): void {}
 }
