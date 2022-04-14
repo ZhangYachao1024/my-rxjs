@@ -1,4 +1,4 @@
-<div class="wrapper">
+<div class="wrapper" (mouseenter)="stop()" (mouseleave)="start()">
   <ul #contentBox>
       <ng-container *ngFor="let item of list">
           <li>{{item.text}}</li>
