@@ -50,7 +50,7 @@ export class SwiperComponent implements AfterViewInit, OnDestroy {
      * 实现列表向上无限循环滚动
      */
     private __swiper(delay = INTERVAL): void {
-        let interval = 0;
+        let interval = delay;
         let transition = '';
         let timer = setTimeout(() => {
             if (this.__stop) {
@@ -76,15 +76,15 @@ export class SwiperComponent implements AfterViewInit, OnDestroy {
             this.__renderer2.setStyle(
                 this.__contentBoxRef.nativeElement,
                 'transition',
-                transition
+                transition,
             );
             this.__renderer2.setStyle(
                 this.__contentBoxRef.nativeElement,
                 'top',
-                `${-1 * this.__itemHeight * this.__index}px`
+                `${-1 * this.__itemHeight * this.__index}px`,
             );
             // 开始下次滚动
             this.__swiper(interval);
-        }, delay);
+        }, interval);
     }
 }
